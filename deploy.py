@@ -88,7 +88,7 @@ if __name__ == "__main__":
             raise Exception(f"file does not exist: {fw_binary_path}")
 
         if framework_path.stem not in BINARY_DEPLOY_INFO:
-            raise Exception(f"Compiled binary is missing BinaryInstallInformation: {framework_path}")
+            continue
 
         binary_deploy_info = BINARY_DEPLOY_INFO[framework_path.stem]
         deploy_to_device(fw_binary_path, binary_deploy_info)
