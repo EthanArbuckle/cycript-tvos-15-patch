@@ -20,7 +20,11 @@ static void start_cycript_server(void) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         
-        void *libcycript = dlopen("/fs/jb/usr/lib/libcycript.dylib", RTLD_NOW);
+        void *libcycript = dlopen("/var/jb/usr/lib/libcycript.dylib", RTLD_NOW);
+        if (libcycript == NULL) {
+            NSLog(@"failed to load libcycript.dylib %s", dlerror());
+            return;
+        }
         void *_CYListenServer = dlsym(libcycript, "CYListenServer");
         if (_CYListenServer) {
             
@@ -38,5 +42,6 @@ static void start_cycript_server(void) {
 
 static void __attribute__((constructor)) init_cycript_server_host(void) {
     
+    NSLog(@"starting cycript server host");
     start_cycript_server();
 }

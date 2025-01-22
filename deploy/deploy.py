@@ -19,7 +19,7 @@ class BinaryInstallInformation:
 
 
 BINARY_DEPLOY_INFO = {
-    "cycript_wrapper": BinaryInstallInformation("/fs/jb/usr/bin/ccc", "cycript_wrapper_entitlements.xml"),
+    "cycript_wrapper": BinaryInstallInformation("/var/jb/usr/bin//cycript", "ents.xml"),
 }
 
 
@@ -48,11 +48,12 @@ def deploy_to_device(local_path: Path, binary_deploy_info: BinaryInstallInformat
     else:
         ldid_cmd_args.append("-S")
     ldid_cmd_args.append(local_path.as_posix())
-    subprocess.check_output(ldid_cmd_args)
+    print(ldid_cmd_args)
+#    print(subprocess.check_output(ldid_cmd_args))
 
     # Delete existing binary on-device if it exists
     try:
-        run_command_on_device(f"rm {binary_deploy_info.on_device_path}")
+        run_command_on_device(f"/var/jb/usr/bin/rm {binary_deploy_info.on_device_path}")
     except:
         print(f"failed to delete on-device binary {binary_deploy_info.on_device_path}")
         pass
@@ -70,6 +71,14 @@ def deploy_to_device(local_path: Path, binary_deploy_info: BinaryInstallInformat
         copy_file_to_device(local_path, binary_deploy_info.on_device_path)
     except Exception as e:
         raise Exception(f"Failed to copy {binary_deploy_info.on_device_path} to device with error: {e}")
+    
+    try:
+        copy_file_to_device(binary_deploy_info.entitlements_file, "/var/jb/tmp/entitlements.xml")
+    except Exception as e:
+        print(f"Failed to copy entitlements file to device with error: {e}")
+        pass
+
+    run_command_on_device(f"/var/jb/usr/bin/ldid -S/var/jb/tmp/entitlements.xml {binary_deploy_info.on_device_path}")
 
 
 if __name__ == "__main__":
